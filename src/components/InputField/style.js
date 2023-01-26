@@ -18,7 +18,7 @@ export default StyleSheet.create({
   },
 
   inputContainer: {
-    paddingVertical: 4,
+    paddingVertical: 12,
     width: '100%',
   },
 
@@ -36,7 +36,7 @@ export default StyleSheet.create({
   },
 
   error: {
-    color: Colors.ALERT,
+    color: Colors.RED,
     paddingTop: 4,
     fontSize: 12,
   },

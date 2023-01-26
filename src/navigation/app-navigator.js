@@ -11,6 +11,7 @@ import InventoryScreen from '_screens/inventory';
 import MenuScreen from '_screens/menu';
 import SearchScreen from '_screens/search';
 import {Colors, Fonts} from '_styles';
+import {inventoryData} from '../utils/data';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -63,7 +64,7 @@ const AppNavigator = () => {
 };
 
 const AppNavigatorStack = () => {
-  const [inventoryItems, setInventoryItems] = useState([]);
+  const [inventoryItems, setInventoryItems] = useState(inventoryData);
   return (
     <InventoryContext.Provider value={{inventoryItems, setInventoryItems}}>
       <AppNavigator />

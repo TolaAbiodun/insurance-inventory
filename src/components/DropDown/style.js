@@ -32,10 +32,6 @@ export default StyleSheet.create({
     shadowOffset: {height: 2, width: 0},
     shadowOpacity: 0.5,
   },
-  //   overlay: {
-  //     width: '70%',
-  //     height: '70%',
-  //   },
   item: {
     paddingHorizontal: 10,
     paddingVertical: 15,

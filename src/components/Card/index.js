@@ -41,8 +41,10 @@ const Card = ({name, purchasePrice, imgUrl}) => {
       </View>
 
       <View style={styles.descriptionContainer}>
-        <Text style={styles.descText}>{name}</Text>
-        <Text style={styles.priceText}>{purchasePrice}</Text>
+        <Text numberOfLines={2} ellipsizeMode="tail" style={styles.descText}>
+          {name}
+        </Text>
+        <Text style={styles.priceText}>€ {purchasePrice}</Text>
       </View>
     </View>
   );

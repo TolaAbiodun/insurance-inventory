@@ -1,83 +1,279 @@
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react/no-unstable-nested-components */
 import {
-  StyleSheet,
   Text,
   View,
-  SafeAreaView,
   TouchableOpacity,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Alert,
+  Image,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
+import {InventoryContext} from '../../context/context';
 import {Container, InputField, Card, DropDown, RNModal} from '_components';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {Colors, Fonts} from '_styles';
 import {categoryData} from '../../utils/data';
-
-const AddInventoryModal = ({modalVisible, setModalVisible}) => {
-  return (
-    <RNModal visible={modalVisible} onClose={() => setModalVisible(false)}>
-      <Text>Hello</Text>
-    </RNModal>
-  );
-};
+import styles from './style';
+import 'react-native-get-random-values';
+import {v4 as uuidv4} from 'uuid';
+import {toast} from '_utils/helpers';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
 const InventoryScreen = () => {
-  const [selected, setSelected] = useState(undefined);
-  const [showModal, setShowModal] = useState(false);
+  const [selected, setSelected] = useState({});
+  const [modalVisible, setModalVisible] = useState(false);
+  const [imageUri, setImageUri] = useState(null);
+  const {inventoryItems, setInventoryItems} = useContext(InventoryContext);
 
+  const fields = {
+    name: '',
+    value: '',
+    description: '',
+    category: '',
+  };
+
+  const [input, setInput] = useState(fields);
+  const [error, setError] = useState(fields);
+
+  const handleInputChange = (name, value) => {
+    setInput(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+    validateInput(name, value);
+  };
+
+  const validateInput = (name, value) => {
+    setError(prev => {
+      const stateObj = {...prev, [name]: ''};
+
+      switch (name) {
+        case 'name':
+          if (!value) {
+            stateObj[name] = 'Please enter a product name.';
+          }
+          break;
+        case 'value':
+          if (!value) {
+            stateObj[name] = 'Please enter product value.';
+          }
+          break;
+        case 'category':
+          if (!value) {
+            stateObj[name] = 'Please select a product category.';
+          }
+          break;
+        default:
+          break;
+      }
+      return stateObj;
+    });
+  };
+
+  const RequiredFieldsValidation = () => {
+    return (
+      input.name.length > 0 &&
+      input.value.length > 0 &&
+      Object.keys(selected).length !== 0
+    );
+  };
+
+  const handleAddProduct = () => {
+    validateInput('name', input.name);
+    validateInput('value', input.value);
+    validateInput('category', selected.value);
+    if (RequiredFieldsValidation()) {
+      const newProduct = {
+        id: uuidv4(),
+        name: input.name,
+        category: selected.value,
+        purchasePrice: input.value,
+        description: input.description,
+        imgUrl: imageUri,
+      };
+      setInventoryItems(prevProducts => [...prevProducts, newProduct]);
+      setInput(fields);
+      setModalVisible(false);
+      toast.success({message: 'Product added successfully', duration: 5000});
+    }
+  };
+
+  const handleClose = () => {
+    setModalVisible(false);
+    setInput(fields);
+    setError(fields);
+    setImageUri(null);
+  };
+
+  const selectSource = () => {
+    Alert.alert(
+      'Select source',
+      'Choose a source to pick an image from',
+      [
+        {
+          text: 'Camera',
+          onPress: () => takePicture(),
+        },
+        {
+          text: 'Gallery',
+          onPress: () => selectImage(),
+        },
+      ],
+      {cancelable: true},
+    );
+  };
+
+  const selectImage = async () => {
+    const options = {
+      storageOptions: {
+        skipBackup: true,
+        path: 'images',
+      },
+    };
+
+    await launchImageLibrary(options, res => {
+      console.log('response', res.assets[0].uri);
+      setImageUri(res.assets[0].uri);
+    });
+  };
+
+  const takePicture = async () => {
+    const options = {
+      storageOptions: {
+        skipBackup: true,
+        path: 'images',
+      },
+    };
+    await launchCamera(options, res => {
+      // console.log('response', res.assets[0].uri);
+      setImageUri(res.assets[0].uri);
+    });
+  };
+
+  const removeImage = () => {
+    setImageUri(null);
+  };
+
+  console.log(inventoryItems, 'her is the inventory intems');
   return (
     <Container>
-      <AddInventoryModal
-        modalVisible={showModal}
-        setModalVisible={setShowModal}
-      />
-      <Text>App</Text>
-      <View>
-        <InputField
-          label="Name"
-          placeholder="Hello"
-          icon={
-            <Icon
-              name="euro"
-              style={{
-                color: Colors.GRAY_DARK,
-                fontSize: Fonts.FONT_SIZE_18,
-              }}
-            />
-          }
-          iconPosition="right"
-        />
-        <Card
-          name="Cartier Ring"
-          purchasePrice="$5,000"
-          imgUrl="https://i.ibb.co/znXC7LQ/marcus-lewis-U63z-XX2f7ho-unsplash.jpg"
-        />
-
-        {/* inout select */}
-        <View style={styles.container}>
-          {!!selected && (
-            <Text>
-              Selected: label = {selected.label} and value = {selected.value}
-            </Text>
-          )}
-          <DropDown
-            label="Select a Category"
-            data={categoryData}
-            onSelect={setSelected}
-          />
-        </View>
+      {/* modal starts */}
+      <RNModal
+        visible={modalVisible}
+        onAddProduct={() => handleAddProduct()}
+        onClose={() => handleClose()}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.container}>
+            <View>
+              <TouchableOpacity
+                onPress={selectSource}
+                style={styles.imageSelectorWrapper}>
+                {imageUri !== null ? (
+                  <Image source={{uri: imageUri}} style={styles.selectedImg} />
+                ) : (
+                  <>
+                    <Icon
+                      name="photo-camera"
+                      color={Colors.PRIMARY}
+                      size={60}
+                    />
+                    <Text style={styles.descText}>Add Photo</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+              <InputField
+                value={input.name}
+                label="Name"
+                placeholder="Bracelet"
+                onChangeText={val => handleInputChange('name', val)}
+                onEndEditing={val => validateInput('name', val)}
+                error={error.name}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+              {/* input select */}
+              <View>
+                <Text style={styles.inputLabel}>Category</Text>
+                <View style={styles.container}>
+                  <DropDown
+                    label="Select a Category"
+                    data={categoryData}
+                    onSelect={setSelected}
+                  />
+                  <View>
+                    {error.category !== '' && (
+                      <Text style={styles.error}>{error.category}</Text>
+                    )}
+                  </View>
+                </View>
+              </View>
+              {/* value field */}
+              <InputField
+                value={input.value}
+                label="Value"
+                placeholder="700"
+                onChangeText={val => handleInputChange('value', val)}
+                onEndEditing={val => validateInput('value', val)}
+                error={error.value}
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="numeric"
+                icon={
+                  <Icon
+                    name="euro"
+                    style={{
+                      color: Colors.GRAY_DARK,
+                      fontSize: Fonts.FONT_SIZE_18,
+                    }}
+                  />
+                }
+                iconPosition="right"
+              />
+              <InputField
+                label="Description"
+                placeholder="Optional"
+                hasLargeText
+                autoCapitalize="none"
+                autoCorrect={false}
+                multiline={true}
+              />
+            </View>
+          </KeyboardAvoidingView>
+        </ScrollView>
+      </RNModal>
+      {/* modal ends */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>Inventory</Text>
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <Icon name="add-circle" size={32} color={Colors.PRIMARY} />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => setShowModal(true)}>
-        <Icon name="add-circle" size={40} color={Colors.PRIMARY} />
-      </TouchableOpacity>
+      <FlatList
+        horizontal={false}
+        data={inventoryItems}
+        numColumns={2}
+        keyExtractor={item => item.id}
+        columnWrapperStyle={{justifyContent: 'space-between'}}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
+        ListFooterComponent={<View style={{height: 120}} />}
+        renderItem={({item}) => (
+          <Card
+            name={item.name}
+            purchasePrice={item.purchasePrice}
+            imgUrl={item.imgUrl}
+          />
+        )}
+      />
     </Container>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    textAlign: 'left',
-  },
-});
 
 export default InventoryScreen;

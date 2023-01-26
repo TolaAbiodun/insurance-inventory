@@ -4,10 +4,10 @@ import {FlatList, Text, TouchableOpacity, Modal, View} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import styles from './style';
 
-const DropDown = ({label, data, onSelect}) => {
+const DropDown = ({label, data, onSelect, error}) => {
   const DropdownButton = useRef();
   const [visible, setVisible] = useState(false);
-  const [selected, setSelected] = useState(undefined);
+  const [selected, setSelected] = useState({});
   const [dropdownTop, setDropdownTop] = useState(0);
 
   const toggleDropdown = () => {
@@ -54,16 +54,18 @@ const DropDown = ({label, data, onSelect}) => {
   };
 
   return (
-    <TouchableOpacity
-      ref={DropdownButton}
-      style={styles.button}
-      onPress={toggleDropdown}>
-      {renderDropdown()}
-      <Text style={styles.buttonText}>
-        {(selected && selected.label) || label}
-      </Text>
-      <Icon style={styles.icon} name="chevron-down" />
-    </TouchableOpacity>
+    <View>
+      <TouchableOpacity
+        ref={DropdownButton}
+        style={styles.button}
+        onPress={toggleDropdown}>
+        {renderDropdown()}
+        <Text style={styles.buttonText}>
+          {(selected && selected.label) || label}
+        </Text>
+        <Icon style={styles.icon} name="chevron-down" />
+      </TouchableOpacity>
+    </View>
   );
 };
 

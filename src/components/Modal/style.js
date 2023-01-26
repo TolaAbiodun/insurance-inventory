@@ -6,7 +6,7 @@ export default StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: Colors.GRAY_MEDIUM,
   },
   header: {
     flexDirection: 'row',
@@ -24,7 +24,8 @@ export default StyleSheet.create({
     width: '100%',
     height: '80%',
     backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 7,
   },
 });

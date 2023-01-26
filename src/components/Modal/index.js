@@ -1,8 +1,9 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
 import {View, Text, Modal, TouchableOpacity, Animated} from 'react-native';
 import styles from './style';
 
-const RNModal = ({visible, onClose, children}) => {
+const RNModal = ({visible, onClose, onAddProduct, children}) => {
   const [slideAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
@@ -40,9 +41,9 @@ const RNModal = ({visible, onClose, children}) => {
             <TouchableOpacity
               onPress={onClose}
               style={{alignSelf: 'flex-end', padding: 10}}>
-              <Text style={styles.headerBtn}>Close</Text>
+              <Text style={styles.headerBtn}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={onAddProduct}>
               <Text style={styles.headerBtn}>Add</Text>
             </TouchableOpacity>
           </View>

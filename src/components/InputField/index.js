@@ -57,7 +57,6 @@ const InputField = ({
             borderColor: getBorderColor(),
             flexDirection: getFlexDirection(),
             borderWidth: getBorderWidth(),
-            // flexDirection: 'row',
           },
         ]}>
         <TextInput
