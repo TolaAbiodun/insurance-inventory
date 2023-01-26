@@ -36,7 +36,7 @@ export default StyleSheet.create({
     height: 130,
     width: 130,
     borderWidth: 0.6,
-    borderColor: Colors.GRAY_MEDIUM,
+    borderColor: Colors.GRAY_LIGHT_2,
     borderRadius: 70,
     justifyContent: 'center',
     alignItems: 'center',
@@ -46,5 +46,14 @@ export default StyleSheet.create({
     fontSize: Fonts.FONT_SIZE_16,
     fontWeight: Fonts.FONT_WEIGHT_MEDIUM,
   },
-  selectedImg: {width: 130, height: 130, borderRadius: 130 / 2},
+  selectedImg: {
+    width: 130,
+    height: 130,
+    borderRadius: 130 / 2,
+  },
+  deleteBtn: {
+    position: 'absolute',
+    bottom: -5,
+    left: 100,
+  },
 });

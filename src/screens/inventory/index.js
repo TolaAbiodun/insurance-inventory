@@ -15,6 +15,7 @@ import React, {useContext, useState} from 'react';
 import {InventoryContext} from '../../context/context';
 import {Container, InputField, Card, DropDown, RNModal} from '_components';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import {default as MIcon} from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Colors, Fonts} from '_styles';
 import {categoryData} from '../../utils/data';
 import styles from './style';
@@ -24,9 +25,7 @@ import {toast} from '_utils/helpers';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
 const InventoryScreen = () => {
-  const [selected, setSelected] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
-  const [imageUri, setImageUri] = useState(null);
   const {inventoryItems, setInventoryItems} = useContext(InventoryContext);
 
   const fields = {
@@ -34,6 +33,7 @@ const InventoryScreen = () => {
     value: '',
     description: '',
     category: '',
+    imageUri: '',
   };
 
   const [input, setInput] = useState(fields);
@@ -67,6 +67,11 @@ const InventoryScreen = () => {
             stateObj[name] = 'Please select a product category.';
           }
           break;
+        case 'imageUri':
+          if (!value) {
+            stateObj[name] = 'Please add a product image.';
+          }
+          break;
         default:
           break;
       }
@@ -75,25 +80,26 @@ const InventoryScreen = () => {
   };
 
   const RequiredFieldsValidation = () => {
+    validateInput('name', input.name);
+    validateInput('value', input.value);
+    validateInput('imageUri', input.imageUri);
+    validateInput('category', input.category);
     return (
       input.name.length > 0 &&
       input.value.length > 0 &&
-      Object.keys(selected).length !== 0
+      input.category.length > 0
     );
   };
 
   const handleAddProduct = () => {
-    validateInput('name', input.name);
-    validateInput('value', input.value);
-    validateInput('category', selected.value);
     if (RequiredFieldsValidation()) {
       const newProduct = {
         id: uuidv4(),
         name: input.name,
-        category: selected.value,
+        category: input.category,
         purchasePrice: input.value,
         description: input.description,
-        imgUrl: imageUri,
+        imgUrl: input.imageUri,
       };
       setInventoryItems(prevProducts => [...prevProducts, newProduct]);
       setInput(fields);
@@ -106,7 +112,6 @@ const InventoryScreen = () => {
     setModalVisible(false);
     setInput(fields);
     setError(fields);
-    setImageUri(null);
   };
 
   const selectSource = () => {
@@ -136,8 +141,7 @@ const InventoryScreen = () => {
     };
 
     await launchImageLibrary(options, res => {
-      console.log('response', res.assets[0].uri);
-      setImageUri(res.assets[0].uri);
+      handleInputChange('imageUri', res.assets[0].uri);
     });
   };
 
@@ -149,16 +153,17 @@ const InventoryScreen = () => {
       },
     };
     await launchCamera(options, res => {
-      // console.log('response', res.assets[0].uri);
-      setImageUri(res.assets[0].uri);
+      handleInputChange('imageUri', res.assets[0].uri);
     });
   };
 
   const removeImage = () => {
-    setImageUri(null);
+    setInput(prev => ({
+      ...prev,
+      imageUri: '',
+    }));
   };
 
-  console.log(inventoryItems, 'her is the inventory intems');
   return (
     <Container>
       {/* modal starts */}
@@ -173,9 +178,15 @@ const InventoryScreen = () => {
             <View>
               <TouchableOpacity
                 onPress={selectSource}
-                style={styles.imageSelectorWrapper}>
-                {imageUri !== null ? (
-                  <Image source={{uri: imageUri}} style={styles.selectedImg} />
+                style={[
+                  styles.imageSelectorWrapper,
+                  {borderColor: error.imageUri !== '' && Colors.RED},
+                ]}>
+                {input.imageUri !== '' ? (
+                  <Image
+                    source={{uri: input.imageUri}}
+                    style={styles.selectedImg}
+                  />
                 ) : (
                   <>
                     <Icon
@@ -186,7 +197,18 @@ const InventoryScreen = () => {
                     <Text style={styles.descText}>Add Photo</Text>
                   </>
                 )}
+                {input.imageUri !== '' ? (
+                  <TouchableOpacity
+                    style={styles.deleteBtn}
+                    onPress={() => removeImage()}>
+                    <MIcon name="delete-circle" size={32} color={Colors.RED} />
+                  </TouchableOpacity>
+                ) : null}
               </TouchableOpacity>
+              <Text style={[styles.error, {textAlign: 'center'}]}>
+                {error.imageUri}
+              </Text>
+
               <InputField
                 value={input.name}
                 label="Name"
@@ -197,14 +219,17 @@ const InventoryScreen = () => {
                 autoCapitalize="none"
                 autoCorrect={false}
               />
-              {/* input select */}
+
+              {/* Custom Drop Down Select */}
               <View>
                 <Text style={styles.inputLabel}>Category</Text>
                 <View style={styles.container}>
                   <DropDown
                     label="Select a Category"
                     data={categoryData}
-                    onSelect={setSelected}
+                    onSelect={selected => {
+                      handleInputChange('category', selected.value);
+                    }}
                   />
                   <View>
                     {error.category !== '' && (
