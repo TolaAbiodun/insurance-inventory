@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Platform} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -12,6 +12,8 @@ import MenuScreen from '_screens/menu';
 import SearchScreen from '_screens/search';
 import {Colors, Fonts} from '_styles';
 import {inventoryData} from '../utils/data';
+import {getFromStore, saveToStore} from '../utils/storage-helpers';
+import {interpolateColor} from 'react-native-reanimated';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -65,6 +67,16 @@ const AppNavigator = () => {
 
 const AppNavigatorStack = () => {
   const [inventoryItems, setInventoryItems] = useState(inventoryData);
+
+  useEffect(() => {
+    saveIntentoryData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inventoryItems]);
+
+  const saveIntentoryData = async () => {
+    await saveToStore('inventory', inventoryItems);
+  };
+
   return (
     <InventoryContext.Provider value={{inventoryItems, setInventoryItems}}>
       <AppNavigator />

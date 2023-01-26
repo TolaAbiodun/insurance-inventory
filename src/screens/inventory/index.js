@@ -11,8 +11,9 @@ import {
   Alert,
   Image,
 } from 'react-native';
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {InventoryContext} from '../../context/context';
+import {getFromStore, saveToStore} from '../../utils/storage-helpers';
 import {Container, InputField, Card, DropDown, RNModal} from '_components';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {default as MIcon} from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -21,12 +22,24 @@ import {categoryData} from '../../utils/data';
 import styles from './style';
 import 'react-native-get-random-values';
 import {v4 as uuidv4} from 'uuid';
-import {toast} from '_utils/helpers';
+import {toast, clean_euro_format} from '_utils/helpers';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
 const InventoryScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const {inventoryItems, setInventoryItems} = useContext(InventoryContext);
+
+  useEffect(() => {
+    getInventory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const getInventory = async () => {
+    const data = await getFromStore('inventory');
+    if (data !== null) {
+      setInventoryItems(data);
+    }
+  };
 
   const fields = {
     name: '',
@@ -87,12 +100,29 @@ const InventoryScreen = () => {
     return (
       input.name.length > 0 &&
       input.value.length > 0 &&
-      input.category.length > 0
+      input.category.length > 0 &&
+      input.imageUri.length > 0
     );
   };
 
+  const validateItemPriceTotal = items => {
+    const sum = items.reduce(
+      (total, item) => total + Number(item.purchasePrice),
+      0,
+    );
+    if ((sum + Number(input.value)).toFixed(2) <= 40000) {
+      return true;
+    } else {
+      Alert.alert(
+        'Error',
+        'Could not add item as the total value limit of €40,000 has been exceeded.',
+      );
+      return false;
+    }
+  };
+
   const handleAddProduct = () => {
-    if (RequiredFieldsValidation()) {
+    if (RequiredFieldsValidation() && validateItemPriceTotal(inventoryItems)) {
       const newProduct = {
         id: uuidv4(),
         name: input.name,
@@ -102,16 +132,11 @@ const InventoryScreen = () => {
         imgUrl: input.imageUri,
       };
       setInventoryItems(prevProducts => [...prevProducts, newProduct]);
+      saveToStore('inventory', inventoryItems);
       setInput(fields);
       setModalVisible(false);
       toast.success({message: 'Product added successfully', duration: 5000});
     }
-  };
-
-  const handleClose = () => {
-    setModalVisible(false);
-    setInput(fields);
-    setError(fields);
   };
 
   const selectSource = () => {
@@ -162,6 +187,12 @@ const InventoryScreen = () => {
       ...prev,
       imageUri: '',
     }));
+  };
+
+  const handleClose = () => {
+    setModalVisible(false);
+    setInput(fields);
+    setError(fields);
   };
 
   return (
@@ -292,7 +323,7 @@ const InventoryScreen = () => {
         renderItem={({item}) => (
           <Card
             name={item.name}
-            purchasePrice={item.purchasePrice}
+            purchasePrice={clean_euro_format(item.purchasePrice)}
             imgUrl={item.imgUrl}
           />
         )}

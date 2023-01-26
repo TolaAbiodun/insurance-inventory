@@ -44,7 +44,7 @@ const Card = ({name, purchasePrice, imgUrl}) => {
         <Text numberOfLines={2} ellipsizeMode="tail" style={styles.descText}>
           {name}
         </Text>
-        <Text style={styles.priceText}>€ {purchasePrice}</Text>
+        <Text style={styles.priceText}>{purchasePrice}</Text>
       </View>
     </View>
   );
