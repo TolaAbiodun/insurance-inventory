@@ -27,10 +27,12 @@ export default StyleSheet.create({
     backgroundColor: '#fff',
     width: '100%',
     marginLeft: 20,
+    marginTop: 5,
     shadowColor: Colors.GRAY_DARK,
     shadowRadius: 2,
     shadowOffset: {height: 2, width: 0},
     shadowOpacity: 0.5,
+    elevation: 2,
   },
   item: {
     paddingHorizontal: 10,

@@ -22,7 +22,7 @@ export const inventoryData = [
     name: 'Cartier ring',
     purchasePrice: 199.99,
     category: 'Jewelry',
-    imgUrl: 'https://i.ibb.co/4dfndL2/louis-hansel-M-d-J-Scwa-LE-unsplash.jpg',
+    imgUrl: 'https://i.ibb.co/yWmLXMq/cartier-ring.jpg',
   },
   {
     id: uuidv4(),

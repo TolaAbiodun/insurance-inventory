@@ -12,8 +12,7 @@ import MenuScreen from '_screens/menu';
 import SearchScreen from '_screens/search';
 import {Colors, Fonts} from '_styles';
 import {inventoryData} from '../utils/data';
-import {getFromStore, saveToStore} from '../utils/storage-helpers';
-import {interpolateColor} from 'react-native-reanimated';
+import {saveToStore} from '../utils/storage-helpers';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();

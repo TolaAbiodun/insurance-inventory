@@ -9,6 +9,6 @@ export const saveToStore = async (key, value) => {
   try {
     await AsyncStorage.setItem(key, JSON.stringify(value));
   } catch (e) {
-    alert(e);
+    console.log(e);
   }
 };

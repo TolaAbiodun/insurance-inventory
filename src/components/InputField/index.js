@@ -69,7 +69,7 @@ const InputField = ({
           onBlur={() => {
             setFocused(false);
           }}
-          placeholderTextColor={Colors.GRAY_DARK}
+          placeholderTextColor={Colors.GRAY_MEDIUM}
           {...props}
         />
         <View>{icon && icon}</View>

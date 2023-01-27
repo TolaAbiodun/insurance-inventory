@@ -157,28 +157,26 @@ const InventoryScreen = () => {
     );
   };
 
-  const selectImage = async () => {
-    const options = {
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
-      },
-    };
+  const imgOptions = {
+    storageOptions: {
+      skipBackup: true,
+      path: 'images',
+    },
+  };
 
-    await launchImageLibrary(options, res => {
-      handleInputChange('imageUri', res.assets[0].uri);
+  const selectImage = async () => {
+    await launchImageLibrary(imgOptions, res => {
+      if (!res.didCancel) {
+        handleInputChange('imageUri', res.assets[0].uri);
+      }
     });
   };
 
   const takePicture = async () => {
-    const options = {
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
-      },
-    };
-    await launchCamera(options, res => {
-      handleInputChange('imageUri', res.assets[0].uri);
+    await launchCamera(imgOptions, res => {
+      if (!res.didCancel) {
+        handleInputChange('imageUri', res.assets[0].uri);
+      }
     });
   };
 
@@ -203,43 +201,36 @@ const InventoryScreen = () => {
         onAddProduct={() => handleAddProduct()}
         onClose={() => handleClose()}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.container}>
-            <View>
-              <TouchableOpacity
-                onPress={selectSource}
-                style={[
-                  styles.imageSelectorWrapper,
-                  {borderColor: error.imageUri !== '' && Colors.RED},
-                ]}>
-                {input.imageUri !== '' ? (
-                  <Image
-                    source={{uri: input.imageUri}}
-                    style={styles.selectedImg}
-                  />
-                ) : (
-                  <>
-                    <Icon
-                      name="photo-camera"
-                      color={Colors.PRIMARY}
-                      size={60}
-                    />
-                    <Text style={styles.descText}>Add Photo</Text>
-                  </>
-                )}
-                {input.imageUri !== '' ? (
-                  <TouchableOpacity
-                    style={styles.deleteBtn}
-                    onPress={() => removeImage()}>
-                    <MIcon name="delete-circle" size={32} color={Colors.RED} />
-                  </TouchableOpacity>
-                ) : null}
-              </TouchableOpacity>
-              <Text style={[styles.error, {textAlign: 'center'}]}>
-                {error.imageUri}
-              </Text>
-
+          <View>
+            <TouchableOpacity
+              onPress={selectSource}
+              style={[
+                styles.imageSelectorWrapper,
+                {borderColor: error.imageUri !== '' && Colors.RED},
+              ]}>
+              {input.imageUri !== '' ? (
+                <Image
+                  source={{uri: input.imageUri}}
+                  style={styles.selectedImg}
+                />
+              ) : (
+                <>
+                  <Icon name="photo-camera" color={Colors.PRIMARY} size={60} />
+                  <Text style={styles.descText}>Add Photo</Text>
+                </>
+              )}
+              {input.imageUri !== '' ? (
+                <TouchableOpacity
+                  style={styles.deleteBtn}
+                  onPress={() => removeImage()}>
+                  <MIcon name="delete-circle" size={32} color={Colors.RED} />
+                </TouchableOpacity>
+              ) : null}
+            </TouchableOpacity>
+            <Text style={[styles.error, {textAlign: 'center'}]}>
+              {error.imageUri}
+            </Text>
+            <KeyboardAvoidingView behavior="padding" style={styles.kbdView}>
               <InputField
                 value={input.name}
                 label="Name"
@@ -269,6 +260,7 @@ const InventoryScreen = () => {
                   </View>
                 </View>
               </View>
+
               {/* value field */}
               <InputField
                 value={input.value}
@@ -299,8 +291,8 @@ const InventoryScreen = () => {
                 autoCorrect={false}
                 multiline={true}
               />
-            </View>
-          </KeyboardAvoidingView>
+            </KeyboardAvoidingView>
+          </View>
         </ScrollView>
       </RNModal>
       {/* modal ends */}

@@ -6,7 +6,7 @@ export default StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     textAlign: 'left',
-    // marginBottom: 50,
+    // marginBottom: 100,
   },
   headerText: {
     fontSize: Fonts.FONT_SIZE_26,
@@ -33,8 +33,8 @@ export default StyleSheet.create({
     fontSize: 12,
   },
   imageSelectorWrapper: {
-    height: 130,
-    width: 130,
+    height: 120,
+    width: 120,
     borderWidth: 0.6,
     borderColor: Colors.GRAY_LIGHT_2,
     borderRadius: 70,
@@ -47,13 +47,17 @@ export default StyleSheet.create({
     fontWeight: Fonts.FONT_WEIGHT_MEDIUM,
   },
   selectedImg: {
-    width: 130,
-    height: 130,
+    width: 120,
+    height: 120,
     borderRadius: 130 / 2,
   },
   deleteBtn: {
     position: 'absolute',
-    bottom: -5,
-    left: 100,
+    bottom: -10,
+    left: 90,
+    zIndex: 1,
+  },
+  kbdView: {
+    flex: 1,
   },
 });
